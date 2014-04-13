@@ -10,11 +10,34 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
+    <repositories>
+        <repository>
+            <id>root1-releases</id>
+            <name>root1.de Releases Repository</name>
+            <layout>default</layout>
+            <url>http://nexus.root1.de/content/repositories/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <dependencies>
-        <dependency>
+        
+        <!--        <dependency>
             <groupId>com.googlecode.javacv</groupId>
             <artifactId>javacv</artifactId>
             <version>0.5</version>
+        </dependency>-->
+        <dependency>
+            <groupId>org.rxtx</groupId>
+            <artifactId>rxtx</artifactId>
+            <version>2.2-pre2</version>
         </dependency>
+        
+<!--                <dependency>
+            <groupId>de.root1</groupId>
+            <artifactId>rxtx-rebundled</artifactId>
+            <version>2.1-7r2-3</version>
+        </dependency>-->
     </dependencies>
 </project>
