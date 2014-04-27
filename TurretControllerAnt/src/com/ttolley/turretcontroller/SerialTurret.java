@@ -19,7 +19,7 @@ import java.util.Enumeration;
  *
  * @author tyler
  */
-public class SerialTest implements SerialPortEventListener {
+public class SerialTurret implements SerialPortEventListener {
 
     SerialPort serialPort = null;
 
@@ -95,17 +95,25 @@ public class SerialTest implements SerialPortEventListener {
         return false;
     }
 
-    private void sendData(String data) {
+    private void sendData(byte data) {
         try {
             System.out.println("Sending data: '" + data + "'");
 
             // open the streams and send the "y" character
             output = serialPort.getOutputStream();
-            output.write(data.getBytes());
+            output.write(data);
+            Thread.sleep(2000);
         } catch (Exception e) {
             System.err.println(e.toString());
             System.exit(0);
         }
+    }
+    
+    
+    
+    public void sendTurretCommand(byte commandState)
+    {
+        this.sendData(commandState);
     }
 
     //
@@ -121,6 +129,7 @@ public class SerialTest implements SerialPortEventListener {
     //
     // Handle serial port event
     //
+    @Override
     public synchronized void serialEvent(SerialPortEvent oEvent) {
         //System.out.println("Event received: " + oEvent.toString());
         try {
@@ -143,40 +152,26 @@ public class SerialTest implements SerialPortEventListener {
         }
     }
 
-    public SerialTest() {
+    public SerialTurret() {
         appName = getClass().getName();
     }
 
-    public static void main(String[] args) throws Exception {
-        SerialTest test = new SerialTest();
-        if (test.initialize()) {
-            test.sendData("f");
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-            }
-            test.sendData("r");
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-            }
-            test.sendData("f");
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-            }
-            test.sendData("r");
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-            }
-            test.close();
-        }
-
-        // Wait 5 seconds then shutdown
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ie) {
-        }
-    }
+//    public static void main(String[] args) throws Exception {
+//        SerialTurret test = new SerialTurret();
+//        if (test.initialize()) {
+////            test.sendData("f");
+////            test.sendData("r");
+////            test.sendData("f");
+////            test.sendData("r");
+//            test.sendData("+");
+//            test.sendData("-");
+//            test.close();
+//        }
+//
+//        // Wait 5 seconds then shutdown
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException ie) {
+//        }
+//    }
 }
