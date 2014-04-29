@@ -4,8 +4,10 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include <utility/Adafruit_PWMServoDriver.h>
+#include <AccelStepper.h>
 
 extern HardwareSerial Serial;
+
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_StepperMotor *panStepper = AFMS.getStepper(200, 1);
 Adafruit_StepperMotor *tiltStepper = AFMS.getStepper(200, 2);
@@ -14,15 +16,37 @@ Servo rackServo;
 int pos = 0;
 int tiltPin = 3;
 int panPin = 2;
-int style = INTERLEAVE;
+int style = DOUBLE;
 int inputState = 0;
+
+void tiltUp() {
+    tiltStepper->onestep(FORWARD, style);
+}
+
+void tiltDown() {
+    tiltStepper->onestep(BACKWARD, style);
+}
+
+void panLeft() {
+    panStepper->onestep(FORWARD, style);
+}
+
+void panRight() {
+    panStepper->onestep(BACKWARD, style);
+}
+AccelStepper panAccelStepper(panRight, panLeft);
+AccelStepper tiltAccelStepper(tiltUp, tiltDown);
 
 void setup() {
     AFMS.begin();
-    tiltStepper->setSpeed(6);
-    panStepper->setSpeed(6);
+    //    tiltStepper->setSpeed(4);
+    //    panStepper->setSpeed(4);
     rackServo.attach(10);
     rackServo.write(180);
+    panAccelStepper.setMaxSpeed(130.0);
+    tiltAccelStepper.setMaxSpeed(130.0);
+    panAccelStepper.setAcceleration(4.0);
+    tiltAccelStepper.setAcceleration(4.0);
 
 
     Serial.begin(9600);
@@ -40,23 +64,25 @@ void loop() {
     //Handle input state
     if ((inputState & 1) != 0) {
         Serial.println("Tilting Up");
-        tiltStepper->onestep(FORWARD, style);
+        tiltAccelStepper.move(10);
         // Tilt up
-    }
-    if ((inputState & 2) != 0) {
+    } else if ((inputState & 2) != 0) {
         Serial.println("Tilting Down");
-        tiltStepper->onestep( BACKWARD, style);
+        tiltAccelStepper.move(-10);
         // Tilt down
+    } else {
+        tiltAccelStepper.move(0);
     }
     if ((inputState & 4) != 0) {
         Serial.println("Panning Left");
-        panStepper->onestep(FORWARD, style);
+        panAccelStepper.move(10);
         // Pan left
-    }
-    if ((inputState & 8) != 0) {
+    } else if ((inputState & 8) != 0) {
         Serial.println("Panning Right");
-        panStepper->onestep(BACKWARD, style);
+        panAccelStepper.move(-10);
         // Pan right
+    } else {
+        panAccelStepper.move(0);
     }
     if ((inputState & 16) != 0) {
         Serial.println("Toggling Flywheel");
@@ -70,6 +96,6 @@ void loop() {
         rackServo.write(180);
         delay(1000);
     }
-
-    delay(500);
+    panAccelStepper.run();
+    tiltAccelStepper.run();
 }
